@@ -1,30 +1,42 @@
-package com.appsdeveloperblog.appws.shared.dto;
+package com.appsdeveloperblog.appws.io.entity;
 
 import java.io.Serializable;
 
-public class UserDto implements Serializable {
-	
-	private static final long serialVersionUID = 1965884671973953107L;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
+@Entity(name="users")
+public class UserEntity implements Serializable {
+
+	private static final long serialVersionUID = 878413952764436520L;
+	
+	@Id
+	@GeneratedValue
 	private long id;
 	
-	private String firstname;
-	
-	private String lastname;
-	
-	private String email;
-	
-	private String password;
-	
+	@Column(nullable=false)
 	private String userId;
 	
+	@Column(nullable=false, length=50)
+	private String firstname;
+	
+	@Column(nullable=false, length=50)
+	private String lastname;
+	
+	@Column(nullable=false, length=100)
+	private String email;
+	
+	@Column(nullable=false)
 	private String encryptedPassword;
 	
 	private String emailVerificationToken;
 	
+	@Column(nullable=false)
 	private Boolean emailVerificationStatus = false;
 	
-	public UserDto() {
+	public UserEntity() {
 		// TODO Auto-generated constructor stub
 	}
 
@@ -34,6 +46,14 @@ public class UserDto implements Serializable {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 	public String getFirstname() {
@@ -60,14 +80,6 @@ public class UserDto implements Serializable {
 		this.email = email;
 	}
 
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
 	public String getEncryptedPassword() {
 		return encryptedPassword;
 	}
@@ -91,15 +103,5 @@ public class UserDto implements Serializable {
 	public void setEmailVerificationStatus(Boolean emailVerificationStatus) {
 		this.emailVerificationStatus = emailVerificationStatus;
 	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
-	
-	
 
 }
