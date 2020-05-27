@@ -1,7 +1,10 @@
 package com.appsdeveloperblog.appws.service.impl;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -50,9 +53,12 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		UserEntity user = userRepo.findByEmail(email);
+		
+		if(user == null) throw new UsernameNotFoundException("A user with " + email + " could not be found!");
+		
+		return new User(user.getEmail(), user.getEncryptedPassword(), new ArrayList<>());
 	}
 
 }
