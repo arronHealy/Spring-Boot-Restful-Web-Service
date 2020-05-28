@@ -26,7 +26,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 	{
 		String header = res.getHeader(SecurityConstants.HEADER_STRING);
 		
-		if(header == null || header.startsWith(SecurityConstants.TOKEN_PREFIX))
+		if(header == null || !header.startsWith(SecurityConstants.TOKEN_PREFIX))
 		{
 			chain.doFilter(req, res);
 			return;
@@ -45,9 +45,10 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 		
 		if(token != null)
 		{
-			token = token.replaceAll(SecurityConstants.TOKEN_PREFIX, "");
+			token = token.replace(SecurityConstants.TOKEN_PREFIX, "");
 			
 			String user = Jwts.parser().setSigningKey(SecurityConstants.TOKEN_SECRET).parseClaimsJwt(token).getBody().getSubject();
+			
 			
 			if(user != null)
 			{
