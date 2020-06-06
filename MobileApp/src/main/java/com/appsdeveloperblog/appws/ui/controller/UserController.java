@@ -1,7 +1,9 @@
 package com.appsdeveloperblog.appws.ui.controller;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,55 +13,59 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.appsdeveloperblog.appws.exceptions.UserServiceException;
 import com.appsdeveloperblog.appws.service.UserService;
 import com.appsdeveloperblog.appws.shared.dto.UserDto;
 import com.appsdeveloperblog.appws.ui.model.request.UserDetailsRequestModel;
+import com.appsdeveloperblog.appws.ui.model.response.ErrorMessages;
 import com.appsdeveloperblog.appws.ui.model.response.UserRest;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-	
+
 	@Autowired
 	private UserService userService;
 
-	@GetMapping(path="/{id}")
-	public UserRest getUser(@PathVariable String id)
-	{
+	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public UserRest getUser(@PathVariable String id) {
 		UserRest returnVal = new UserRest();
-		
+
 		UserDto user = userService.getUserByUserId(id);
-		
-		BeanUtils.copyProperties(user, returnVal);
-		
+
+		ModelMapper modelMapper = new ModelMapper();
+
+		returnVal = modelMapper.map(user, UserRest.class);
+
 		return returnVal;
 	}
-	
-	@PostMapping
-	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails)
-	{
-		UserRest returnVal = new UserRest();
+
+	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
+		UserRest returnValue = new UserRest();
+
+		ModelMapper modelMapper = new ModelMapper();
 		
-		UserDto userDto = new UserDto();
+		if(userDetails.getFirstname().isEmpty()) throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		
-		BeanUtils.copyProperties(userDetails, userDto);
-		
+		UserDto userDto = modelMapper.map(userDetails, UserDto.class);
+
 		UserDto createdUser = userService.createUser(userDto);
-		
-		BeanUtils.copyProperties(createdUser, returnVal);
-		
-		return returnVal;
+		returnValue = modelMapper.map(createdUser, UserRest.class);
+
+		return returnValue;
 	}
-	
-	@PutMapping
-	public String updateUser()
-	{
+
+	@PutMapping(path = "/{id}", consumes = { MediaType.APPLICATION_XML_VALUE,
+			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
+					MediaType.APPLICATION_JSON_VALUE })
+	public String updateUser() {
 		return "update user called";
 	}
-	
-	@DeleteMapping
-	public String deleteUser()
-	{
+
+	@DeleteMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public String deleteUser() {
 		return "delete user called";
 	}
 }
