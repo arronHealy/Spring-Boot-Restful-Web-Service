@@ -18,6 +18,8 @@ import com.appsdeveloperblog.appws.service.UserService;
 import com.appsdeveloperblog.appws.shared.dto.UserDto;
 import com.appsdeveloperblog.appws.ui.model.request.UserDetailsRequestModel;
 import com.appsdeveloperblog.appws.ui.model.response.ErrorMessages;
+import com.appsdeveloperblog.appws.ui.model.response.OperationResponseModel;
+import com.appsdeveloperblog.appws.ui.model.response.RequestOperationStatus;
 import com.appsdeveloperblog.appws.ui.model.response.UserRest;
 
 @RestController
@@ -76,7 +78,16 @@ public class UserController {
 	}
 
 	@DeleteMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public String deleteUser() {
-		return "delete user called";
+	public OperationResponseModel deleteUser(@PathVariable String id) {
+		
+		OperationResponseModel returnVal = new OperationResponseModel();
+		
+		returnVal.setOperationName(RequestOperationName.DELETE.name());
+		
+		userService.deleteUser(id);
+		
+		returnVal.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		
+		return returnVal;
 	}
 }
