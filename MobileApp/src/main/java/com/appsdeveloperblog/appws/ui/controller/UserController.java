@@ -47,7 +47,7 @@ public class UserController {
 
 		ModelMapper modelMapper = new ModelMapper();
 		
-		if(userDetails.getFirstname().isEmpty()) throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+		//if(userDetails.getFirstname().isEmpty()) throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		
 		UserDto userDto = modelMapper.map(userDetails, UserDto.class);
 
@@ -60,8 +60,19 @@ public class UserController {
 	@PutMapping(path = "/{id}", consumes = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
 					MediaType.APPLICATION_JSON_VALUE })
-	public String updateUser() {
-		return "update user called";
+	public UserRest updateUser(@PathVariable String id, @RequestBody UserDetailsRequestModel userDetails) {
+		UserRest returnValue = new UserRest();
+
+		ModelMapper modelMapper = new ModelMapper();
+		
+		//if(userDetails.getFirstname().isEmpty()) throw new UserServiceException(ErrorMessages.COULD_NOT_UPDATE_RECORD.getErrorMessage());
+		
+		UserDto userDto = modelMapper.map(userDetails, UserDto.class);
+
+		UserDto updatedUser = userService.updateUser(id, userDto);
+		returnValue = modelMapper.map(updatedUser, UserRest.class);
+
+		return returnValue;
 	}
 
 	@DeleteMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
