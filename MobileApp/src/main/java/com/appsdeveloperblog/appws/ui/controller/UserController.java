@@ -1,5 +1,8 @@
 package com.appsdeveloperblog.appws.ui.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.appsdeveloperblog.appws.exceptions.UserServiceException;
 import com.appsdeveloperblog.appws.service.UserService;
 import com.appsdeveloperblog.appws.shared.dto.UserDto;
 import com.appsdeveloperblog.appws.ui.model.request.UserDetailsRequestModel;
-import com.appsdeveloperblog.appws.ui.model.response.ErrorMessages;
 import com.appsdeveloperblog.appws.ui.model.response.OperationResponseModel;
 import com.appsdeveloperblog.appws.ui.model.response.RequestOperationStatus;
 import com.appsdeveloperblog.appws.ui.model.response.UserRest;
@@ -48,9 +50,10 @@ public class UserController {
 		UserRest returnValue = new UserRest();
 
 		ModelMapper modelMapper = new ModelMapper();
-		
-		//if(userDetails.getFirstname().isEmpty()) throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
-		
+
+		// if(userDetails.getFirstname().isEmpty()) throw new
+		// UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+
 		UserDto userDto = modelMapper.map(userDetails, UserDto.class);
 
 		UserDto createdUser = userService.createUser(userDto);
@@ -66,9 +69,10 @@ public class UserController {
 		UserRest returnValue = new UserRest();
 
 		ModelMapper modelMapper = new ModelMapper();
-		
-		//if(userDetails.getFirstname().isEmpty()) throw new UserServiceException(ErrorMessages.COULD_NOT_UPDATE_RECORD.getErrorMessage());
-		
+
+		// if(userDetails.getFirstname().isEmpty()) throw new
+		// UserServiceException(ErrorMessages.COULD_NOT_UPDATE_RECORD.getErrorMessage());
+
 		UserDto userDto = modelMapper.map(userDetails, UserDto.class);
 
 		UserDto updatedUser = userService.updateUser(id, userDto);
@@ -79,15 +83,32 @@ public class UserController {
 
 	@DeleteMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public OperationResponseModel deleteUser(@PathVariable String id) {
-		
+
 		OperationResponseModel returnVal = new OperationResponseModel();
-		
+
 		returnVal.setOperationName(RequestOperationName.DELETE.name());
-		
+
 		userService.deleteUser(id);
-		
+
 		returnVal.setOperationResult(RequestOperationStatus.SUCCESS.name());
+
+		return returnVal;
+	}
+
+	@GetMapping(produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public List<UserRest> getUsers(@RequestParam(value = "page", defaultValue = "1") int pageNum,
+			@RequestParam(value = "limit", defaultValue = "25") int limitNum) {
+		List<UserRest> returnVal = new ArrayList<>();
 		
+		List<UserDto> users = userService.getUsers(pageNum, limitNum);
+		
+		for(UserDto user: users)
+		{
+			UserRest model = new UserRest();
+			BeanUtils.copyProperties(user, model);
+			returnVal.add(model);
+		}
+
 		return returnVal;
 	}
 }

@@ -1,10 +1,15 @@
 package com.appsdeveloperblog.appws.service.impl;
 
+
 import java.util.ArrayList;
+import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -116,6 +121,28 @@ public class UserServiceImpl implements UserService {
 		if(user == null) throw new UsernameNotFoundException(ErrorMessages.COULD_NOT_DELETE_RECORD.getErrorMessage());
 		
 		userRepo.delete(user);
+	}
+
+	@Override
+	public List<UserDto> getUsers(int page, int limit) {
+		
+		List<UserDto> returnVal = new ArrayList<>();
+		
+		Pageable pageableReq = PageRequest.of(page, limit);
+		
+		Page<UserEntity> userPage = userRepo.findAll(pageableReq);
+		
+		if(userPage.isEmpty()) throw new UsernameNotFoundException(ErrorMessages.COULD_NOT_DELETE_RECORD.getErrorMessage());
+		
+		List<UserEntity> users = userPage.getContent();
+		
+		for(UserEntity entity: users) {
+			UserDto user = new UserDto();
+			BeanUtils.copyProperties(entity, user);
+			returnVal.add(user);
+		}
+		
+		return returnVal;
 	}
 
 }
