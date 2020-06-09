@@ -132,7 +132,7 @@ public class UserServiceImpl implements UserService {
 		
 		Page<UserEntity> userPage = userRepo.findAll(pageableReq);
 		
-		if(userPage.isEmpty()) throw new UsernameNotFoundException(ErrorMessages.COULD_NOT_DELETE_RECORD.getErrorMessage());
+		if(userPage.isEmpty()) throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
 		
 		List<UserEntity> users = userPage.getContent();
 		

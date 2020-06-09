@@ -1,5 +1,7 @@
 package com.appsdeveloperblog.appws.ui.model.request;
 
+import java.util.List;
+
 public class UserDetailsRequestModel {
 	
 	private String firstname;
@@ -9,6 +11,8 @@ public class UserDetailsRequestModel {
 	private String email;
 	
 	private String password;
+	
+	private List<AddressRequestModel> addresses;
 	
 	public UserDetailsRequestModel() {
 		// TODO Auto-generated constructor stub
@@ -46,4 +50,12 @@ public class UserDetailsRequestModel {
 		this.password = password;
 	}
 
+	public List<AddressRequestModel> getAddresses() {
+		return addresses;
+	}
+
+	public void setAddresses(List<AddressRequestModel> addresses) {
+		this.addresses = addresses;
+	}
+	
 }
