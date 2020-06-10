@@ -1,5 +1,7 @@
 package com.appsdeveloperblog.appws.ui.model.response;
 
+import java.util.List;
+
 public class UserRest {
 
 	private String userId;
@@ -9,6 +11,8 @@ public class UserRest {
 	private String lastname;
 	
 	private String email;
+	
+	private List<AddressesRest> addresses;
 	
 	public UserRest() {
 		// TODO Auto-generated constructor stub
@@ -44,6 +48,14 @@ public class UserRest {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public List<AddressesRest> getAddresses() {
+		return addresses;
+	}
+
+	public void setAddresses(List<AddressesRest> addresses) {
+		this.addresses = addresses;
 	}
 	
 	

@@ -21,6 +21,7 @@ import com.appsdeveloperblog.appws.io.entity.UserEntity;
 import com.appsdeveloperblog.appws.repository.UserRepository;
 import com.appsdeveloperblog.appws.service.UserService;
 import com.appsdeveloperblog.appws.shared.UtilsHelper;
+import com.appsdeveloperblog.appws.shared.dto.AddressDto;
 import com.appsdeveloperblog.appws.shared.dto.UserDto;
 import com.appsdeveloperblog.appws.ui.model.response.ErrorMessages;
 
@@ -41,9 +42,18 @@ public class UserServiceImpl implements UserService {
 		
 		if(userRepo.findByEmail(user.getEmail()) != null) throw new RuntimeException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		
-		UserEntity userEntity = new UserEntity();
+		for(int i = 0; i < user.getAddresses().size(); i++)
+		{
+			AddressDto addressDto = user.getAddresses().get(i);
+			addressDto.setUserDetails(user);
+			addressDto.setAddressId(utils.generateAddressId(30));
+			user.getAddresses().set(i, addressDto);
+		}
 		
-		BeanUtils.copyProperties(user, userEntity);
+		//BeanUtils.copyProperties(user, userEntity);
+		ModelMapper modelMapper = new ModelMapper();
+		
+		UserEntity userEntity = modelMapper.map(user, UserEntity.class);
 		
 		String publicUserId = utils.generateUserId(30);
 		
@@ -53,9 +63,9 @@ public class UserServiceImpl implements UserService {
 		
 		UserEntity storedUserDetails = userRepo.save(userEntity);
 		
-		UserDto returnVal = new UserDto();
+		//BeanUtils.copyProperties(storedUserDetails, returnVal);
 		
-		BeanUtils.copyProperties(storedUserDetails, returnVal);
+		UserDto returnVal = modelMapper.map(storedUserDetails, UserDto.class);
 		
 		return returnVal;
 	}
