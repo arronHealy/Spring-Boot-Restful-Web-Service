@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import com.appsdeveloperblog.appws.shared.dto.AddressDto;
 import com.appsdeveloperblog.appws.shared.dto.UserDto;
 
 public interface UserService extends UserDetailsService {
