@@ -134,7 +134,7 @@ public class UserController {
 		
 		List<AddressDto> addresses = addressesService.getAddresses(id);
 		
-		if(addresses != null || !addresses.isEmpty())
+		if(!addresses.isEmpty() || addresses != null)
 		{
 			Type listType = new TypeToken<List<AddressesRest>>() {}.getType();
 			
