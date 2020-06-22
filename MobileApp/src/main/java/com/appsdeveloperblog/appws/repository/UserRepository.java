@@ -12,5 +12,7 @@ public interface UserRepository extends PagingAndSortingRepository<UserEntity, L
 	UserEntity findByEmail(String email);
 	
 	UserEntity findByUserId(String id);
+	
+	UserEntity findUserByEmailVerificationToken(String token);
 
 }

@@ -12,6 +12,7 @@
 	<groupId>com.appsdeveloperblog.appws</groupId>
 	<artifactId>mobile-appws</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
 	<name>MobileApp</name>
 	<description>spring api for mobile app</description>
 

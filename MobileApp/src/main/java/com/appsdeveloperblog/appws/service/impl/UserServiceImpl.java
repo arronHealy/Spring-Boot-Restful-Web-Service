@@ -17,9 +17,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.appsdeveloperblog.appws.exceptions.UserServiceException;
+import com.appsdeveloperblog.appws.io.entity.PasswordResetTokenEntity;
 import com.appsdeveloperblog.appws.io.entity.UserEntity;
 import com.appsdeveloperblog.appws.repository.UserRepository;
 import com.appsdeveloperblog.appws.service.UserService;
+import com.appsdeveloperblog.appws.shared.AmazonSES;
 import com.appsdeveloperblog.appws.shared.UtilsHelper;
 import com.appsdeveloperblog.appws.shared.dto.AddressDto;
 import com.appsdeveloperblog.appws.shared.dto.UserDto;
@@ -61,11 +63,18 @@ public class UserServiceImpl implements UserService {
 		
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		
+		userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(publicUserId));
+		
+		userEntity.setEmailVerificationStatus(false);
+		
 		UserEntity storedUserDetails = userRepo.save(userEntity);
 		
 		//BeanUtils.copyProperties(storedUserDetails, returnVal);
 		
 		UserDto returnVal = modelMapper.map(storedUserDetails, UserDto.class);
+		
+		//send email
+		new AmazonSES().verifyEmail(returnVal);		
 		
 		return returnVal;
 	}
@@ -94,8 +103,9 @@ public class UserServiceImpl implements UserService {
 		UserEntity user = userRepo.findByEmail(email);
 		
 		if(user == null) throw new UsernameNotFoundException(ErrorMessages.EMAIL_ADRESS_NOT_VERIFED.getErrorMessage());
-		
-		return new User(user.getEmail(), user.getEncryptedPassword(), new ArrayList<>());
+			
+		return new User(user.getEmail(), user.getEncryptedPassword(), user.getEmailVerificationStatus(), true, true, true, new ArrayList<>());
+		// return new User(user.getEmail(), user.getEncryptedPassword(), new ArrayList<>());
 	}
 
 	@Override
@@ -151,6 +161,55 @@ public class UserServiceImpl implements UserService {
 			BeanUtils.copyProperties(entity, user);
 			returnVal.add(user);
 		}
+		
+		return returnVal;
+	}
+
+	@Override
+	public boolean verifyEmailToken(String token) {
+		boolean returnVal = false;
+		
+		UserEntity userEntity = userRepo.findUserByEmailVerificationToken(token);
+		
+		if(userEntity != null)
+		{
+			boolean tokenExp = UtilsHelper.hasTokenExpired(token);
+			
+			if(!tokenExp)
+			{
+				userEntity.setEmailVerificationToken(null);
+				userEntity.setEmailVerificationStatus(Boolean.TRUE);
+				userRepo.save(userEntity);
+				returnVal = true;
+			}
+		}
+		
+		return returnVal;
+	}
+
+	@Override
+	public boolean requestPasswordReset(String email) {
+		
+		boolean returnVal = false;
+		
+		UserEntity user = userRepo.findByEmail(email);
+		
+		if(user == null)
+		{
+			return returnVal;
+		}
+		
+		String token = new UtilsHelper().generatePasswordResetToken(user.getUserId());
+		
+		PasswordResetTokenEntity passwordResetTokenEntity = new PasswordResetTokenEntity();
+		
+		passwordResetTokenEntity.setToken(token);
+		
+		//passwordResetTokenEntity.setUserDetails(user);
+		
+		//passwordResetTokenRepo.save(passwordResetTokenEntity);
+		
+		//returnVal = new AmazonSES().sendPasswordResetRequest(user.getFirstname(), user.getEmail(), token);
 		
 		return returnVal;
 	}
