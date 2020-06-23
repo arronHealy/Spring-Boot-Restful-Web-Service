@@ -53,8 +53,6 @@ public class AmazonSES {
 		// add AWS generated values
 		//System.setProperty("aws.accessKeyId", ""); 
 		//System.setProperty("aws.secretKey", ""); 
-		System.setProperty("aws.accessKeyId", "AKIAXOTLB34V7D6WY6WJ"); 
-		System.setProperty("aws.secretKey", "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");
 		
 		AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.EU_WEST_1).build();
 		
@@ -76,8 +74,9 @@ public class AmazonSES {
 	
 	public boolean sendPasswordResetRequest(String firstname, String email, String token)
 	{
-		System.setProperty("aws.accessKeyId", "AKIAXOTLB34V7D6WY6WJ"); 
-		System.setProperty("aws.secretKey", "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");
+		// add AWS generated values
+		//System.setProperty("aws.accessKeyId", ""); 
+		//System.setProperty("aws.secretKey", "");
 		
 		boolean returnVal = false;
 		
