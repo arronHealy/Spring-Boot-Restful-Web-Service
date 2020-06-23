@@ -29,6 +29,7 @@ import com.appsdeveloperblog.appws.service.AddressesService;
 import com.appsdeveloperblog.appws.service.UserService;
 import com.appsdeveloperblog.appws.shared.dto.AddressDto;
 import com.appsdeveloperblog.appws.shared.dto.UserDto;
+import com.appsdeveloperblog.appws.ui.model.request.PasswordResetModel;
 import com.appsdeveloperblog.appws.ui.model.request.PasswordResetRequestModel;
 import com.appsdeveloperblog.appws.ui.model.request.UserDetailsRequestModel;
 import com.appsdeveloperblog.appws.ui.model.response.AddressesRest;
@@ -203,6 +204,25 @@ public class UserController {
 		boolean operationResult = userService.requestPasswordReset(passwordResetRequestModel.getEmail());
 		
 		returnVal.setOperationName(RequestOperationName.REQUEST_PASSWORD_RESET.name());
+		returnVal.setOperationResult(RequestOperationStatus.ERROR.name());
+		
+		if(operationResult)
+		{
+			returnVal.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		}
+		
+		return returnVal;
+	}
+	
+	@PostMapping(path="/password-reset", consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public OperationResponseModel passwordReset(@RequestBody PasswordResetModel passwordResetModel)
+	{
+		OperationResponseModel returnVal = new OperationResponseModel();
+		
+		boolean operationResult = userService.passwordReset(passwordResetModel.getToken(), passwordResetModel.getPassword());
+		
+		returnVal.setOperationName(RequestOperationName.PASSWORD_RESET.name());
 		returnVal.setOperationResult(RequestOperationStatus.ERROR.name());
 		
 		if(operationResult)

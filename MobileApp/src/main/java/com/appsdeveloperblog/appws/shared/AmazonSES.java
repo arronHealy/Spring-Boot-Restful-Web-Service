@@ -8,6 +8,7 @@ import com.amazonaws.services.simpleemail.model.Content;
 import com.amazonaws.services.simpleemail.model.Destination;
 import com.amazonaws.services.simpleemail.model.Message;
 import com.amazonaws.services.simpleemail.model.SendEmailRequest;
+import com.amazonaws.services.simpleemail.model.SendEmailResult;
 import com.appsdeveloperblog.appws.shared.dto.UserDto;
 
 public class AmazonSES {
@@ -30,11 +31,30 @@ public class AmazonSES {
 			+ "http://localhost:8080/verification-service/email-verification?token=$tokenValue"
 			+ "Thank You!";
 	
+	final String PASSWORD_RESET_HTMLBODY = "<h1>A request to reset your password</h1>"
+		      + "<p>Hi, $firstName!</p> "
+		      + "<p>Someone has requested to reset your password with our project. If it were not you, please ignore it."
+		      + " otherwise please click on the link below to set a new password: " 
+		      + "<a href='http://localhost:8080/verification-service/password-reset.html?token=$tokenValue'>"
+		      + " Click this link to Reset Password"
+		      + "</a><br/><br/>"
+		      + "Thank you!";
+
+		  // The email body for recipients with non-HTML email clients.
+		  final String PASSWORD_RESET_TEXTBODY = "A request to reset your password "
+		      + "Hi, $firstName! "
+		      + "Someone has requested to reset your password with our project. If it were not you, please ignore it."
+		      + " otherwise please open the link below in your browser window to set a new password:" 
+		      + " http://localhost:8080/verification-service/password-reset.html?token=$tokenValue"
+		      + " Thank you!";
+	
 	public void verifyEmail(UserDto userDto)
 	{
 		// add AWS generated values
-		System.setProperty("aws.accessKeyId", ""); 
-		System.setProperty("aws.secretKey", ""); 
+		//System.setProperty("aws.accessKeyId", ""); 
+		//System.setProperty("aws.secretKey", ""); 
+		System.setProperty("aws.accessKeyId", "AKIAXOTLB34V7D6WY6WJ"); 
+		System.setProperty("aws.secretKey", "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");
 		
 		AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.EU_WEST_1).build();
 		
@@ -56,7 +76,36 @@ public class AmazonSES {
 	
 	public boolean sendPasswordResetRequest(String firstname, String email, String token)
 	{
-		return false;
+		System.setProperty("aws.accessKeyId", "AKIAXOTLB34V7D6WY6WJ"); 
+		System.setProperty("aws.secretKey", "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");
+		
+		boolean returnVal = false;
+		
+		AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.EU_WEST_1).build();
+		
+		String htmlBodyWithToken = PASSWORD_RESET_HTMLBODY.replace("$tokenValue", token);
+		
+		htmlBodyWithToken = htmlBodyWithToken.replace("$firstName", firstname);
+		
+		String textBodyWithToken = PASSWORD_RESET_TEXTBODY.replace("$tokenValue", token);
+		
+		textBodyWithToken = textBodyWithToken.replace("$firstName", firstname);
+		
+		SendEmailRequest request = new SendEmailRequest()
+				.withDestination(new Destination().withToAddresses(email))
+				.withMessage(new Message().withBody(new Body().withHtml(new Content().withCharset("UTF-8").withData(htmlBodyWithToken))
+						.withText(new Content().withCharset("UTF-8").withData(textBodyWithToken)))
+						.withSubject(new Content().withCharset("UTF-8").withData(SUBJECT)))
+				.withSource(FROM);
+		
+		SendEmailResult result = client.sendEmail(request);
+		
+		if((result.getMessageId() != null && !result.getMessageId().isEmpty()) && result != null)
+		{
+			returnVal = true;
+		}
+		
+		return returnVal;
 	}
 
 }
