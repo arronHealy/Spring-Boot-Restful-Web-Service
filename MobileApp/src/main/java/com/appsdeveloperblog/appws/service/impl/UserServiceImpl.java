@@ -38,10 +38,10 @@ public class UserServiceImpl implements UserService {
 	private UtilsHelper utils;
 	
 	@Autowired
-	private PasswordResetTokenRepository passwordResetTokenRepo;
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 	@Autowired
-	private BCryptPasswordEncoder bCryptPasswordEncoder;
+	private PasswordResetTokenRepository passwordResetTokenRepo;
 
 	@Override
 	public UserDto createUser(UserDto user) {
@@ -220,8 +220,37 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public boolean passwordReset(String token, String password) {
-		// TODO Auto-generated method stub
-		return false;
+		
+		boolean returnVal = false;
+		
+		if(UtilsHelper.hasTokenExpired(token))
+		{
+			return returnVal;
+		}
+		
+		PasswordResetTokenEntity passwordResetTokenEntity = passwordResetTokenRepo.findByToken(token);
+		
+		if(passwordResetTokenEntity == null)
+		{
+			return returnVal;
+		}
+		
+		String encodedPassword = bCryptPasswordEncoder.encode(password);
+		
+		UserEntity userEntity = passwordResetTokenEntity.getUserDetails();
+		
+		userEntity.setEncryptedPassword(encodedPassword);
+		
+		UserEntity savedUser = userRepo.save(userEntity);
+		
+		if(savedUser != null && savedUser.getEncryptedPassword().equalsIgnoreCase(encodedPassword))
+		{
+			returnVal = true;
+		}
+		
+		passwordResetTokenRepo.delete(passwordResetTokenEntity);
+		
+		return returnVal;
 	}
 
 }
