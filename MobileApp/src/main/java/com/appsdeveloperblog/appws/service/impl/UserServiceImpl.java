@@ -42,11 +42,14 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private PasswordResetTokenRepository passwordResetTokenRepo;
+	
+	@Autowired
+	private AmazonSES amazonSES;
 
 	@Override
 	public UserDto createUser(UserDto user) {
 		
-		if(userRepo.findByEmail(user.getEmail()) != null) throw new RuntimeException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+		if(userRepo.findByEmail(user.getEmail()) != null) throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		
 		for(int i = 0; i < user.getAddresses().size(); i++)
 		{
@@ -78,7 +81,7 @@ public class UserServiceImpl implements UserService {
 		UserDto returnVal = modelMapper.map(storedUserDetails, UserDto.class);
 		
 		//send email
-		new AmazonSES().verifyEmail(returnVal);		
+		amazonSES.verifyEmail(returnVal);		
 		
 		return returnVal;
 	}
